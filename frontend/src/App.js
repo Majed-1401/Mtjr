@@ -523,7 +523,7 @@ function App() {
                 <SelectValue placeholder="الحالة" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">جميع الحالات</SelectItem>
+                <SelectItem value="all">جميع الحالات</SelectItem>
                 <SelectItem value="new">جديد</SelectItem>
                 <SelectItem value="used">مستعمل</SelectItem>
               </SelectContent>
