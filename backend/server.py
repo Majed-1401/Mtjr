@@ -252,7 +252,7 @@ async def create_listing(
     user_id: str = Form(...),
     contact_phone: str = Form(...),
     contact_email: str = Form(...),
-    images: List[UploadFile] = File(...)
+    images: List[UploadFile] = File(default=[])
 ):
     if len(images) > 4:
         raise HTTPException(status_code=400, detail="يمكن رفع 4 صور كحد أقصى")
@@ -260,9 +260,13 @@ async def create_listing(
     # Process images
     image_data = []
     for image in images:
-        content = await image.read()
-        encoded_image = base64.b64encode(content).decode('utf-8')
-        image_data.append(f"data:{image.content_type};base64,{encoded_image}")
+        if image.filename:  # Check if file was actually uploaded
+            content = await image.read()
+            encoded_image = base64.b64encode(content).decode('utf-8')
+            image_data.append(f"data:{image.content_type};base64,{encoded_image}")
+    
+    from datetime import timedelta
+    expire_date = datetime.now() + timedelta(days=30)  # 30 days from now
     
     listing = {
         "id": str(uuid.uuid4()),
@@ -280,25 +284,28 @@ async def create_listing(
         "is_sold": False,
         "views_count": 0,
         "created_at": datetime.now(),
-        "expires_at": datetime.now().replace(month=datetime.now().month + 1)  # Expires in 1 month
+        "expires_at": expire_date
     }
     
-    db.listings.insert_one(listing)
-    
-    # Create payment record for listing fee
-    payment_record = {
-        "id": str(uuid.uuid4()),
-        "listing_id": listing["id"],
-        "user_id": user_id,
-        "amount": 2.0,  # 2 SAR listing fee
-        "fee_type": "listing_fee",
-        "payment_method": "pending",
-        "status": "pending",
-        "created_at": datetime.now()
-    }
-    db.payments.insert_one(payment_record)
-    
-    return listing
+    try:
+        db.listings.insert_one(listing)
+        
+        # Create payment record for listing fee
+        payment_record = {
+            "id": str(uuid.uuid4()),
+            "listing_id": listing["id"],
+            "user_id": user_id,
+            "amount": 2.0,  # 2 SAR listing fee
+            "fee_type": "listing_fee",
+            "payment_method": "pending",
+            "status": "pending",
+            "created_at": datetime.now()
+        }
+        db.payments.insert_one(payment_record)
+        
+        return {"id": listing["id"], "message": "تم إنشاء الإعلان بنجاح", "payment_required": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"خطأ في إنشاء الإعلان: {str(e)}")
 
 # Payments
 @app.get("/api/payments")
