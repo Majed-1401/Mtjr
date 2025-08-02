@@ -10,7 +10,7 @@ import { Badge } from './components/ui/badge';
 import { SearchIcon, PlusIcon, HomeIcon, UserIcon, SettingsIcon, TrendingUpIcon } from 'lucide-react';
 import './App.css';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
 
 function App() {
   const [listings, setListings] = useState([]);
