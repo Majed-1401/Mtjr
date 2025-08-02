@@ -510,7 +510,7 @@ function App() {
                 <SelectValue placeholder="جميع المناطق" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">جميع المناطق</SelectItem>
+                <SelectItem value="all">جميع المناطق</SelectItem>
                 {regions.map(region => (
                   <SelectItem key={region.id} value={region.id}>
                     {region.name}
