@@ -12,10 +12,6 @@ import './App.css';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
 
-console.log('BACKEND_URL:', BACKEND_URL);
-console.log('process.env:', process.env.REACT_APP_BACKEND_URL);
-console.log('import.meta.env:', typeof window !== 'undefined' ? window.location.origin : 'server');
-
 function App() {
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
